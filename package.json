@@ -119,14 +119,16 @@
       "prettier"
     ],
     "rules": {
+      "eqeqeq": "off",
       "prettier/prettier": [
         "error",
         {
           "quoteProps": "consistent",
           "singleQuote": true,
-          "tabWidth": 2,
+          "tabWidth": 4,
           "trailingComma": "es5",
-          "useTabs": false
+          "useTabs": false,
+          "endOfLine": "auto"
         }
       ]
     }
@@ -155,5 +157,9 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "expo": "^49.0.2",
+    "expo-sqlite": "~11.3.1"
   }
 }
