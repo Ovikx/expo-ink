@@ -1,6 +1,8 @@
-# expo-ink
+# DISCLAIMER: This is still in development!
+For any SQLite features not supported by this package, use the `database` property of `ExpoORM` to access `expo-sqlite` directly.
 
-A lightweight, type-safe SQLite ORM for expo-sqlite
+# expo-ink
+A lightweight, type-safe SQLite ORM for [`expo-sqlite`](https://www.npmjs.com/package/expo-sqlite). Leverages TypeScript to ensure rigid type safety throughout table definitions and queries. Supports automatic migrations.
 
 ## Installation
 
@@ -8,7 +10,7 @@ A lightweight, type-safe SQLite ORM for expo-sqlite
 npm install expo-ink
 ```
 
-## Usage
+## Basic usage
 
 ```js
 import { multiply } from 'expo-ink';
@@ -24,8 +26,4 @@ See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the 
 
 ## License
 
-MIT
-
----
-
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+[MIT](https://en.wikipedia.org/wiki/MIT_License)
