@@ -1,3 +1,4 @@
-export function multiply(a: number, b: number): Promise<number> {
-    return Promise.resolve(a * b);
-}
+export { ExpoSQLiteORM } from './orm';
+export { Table } from './table';
+export * from './types/types';
+export * from './utils';
