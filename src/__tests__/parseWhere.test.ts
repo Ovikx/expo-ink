@@ -1,5 +1,5 @@
 import { Table } from '../table';
-import { ColumnType, Columns, WhereOptions } from '../types/types';
+import { ColumnType, type Columns, type WhereOptions } from '../types/types';
 
 interface Student {
     name: string;

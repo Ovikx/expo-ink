@@ -1,9 +1,9 @@
 import {
-    ColumnDefinition,
-    Entries,
-    SelectOptions,
-    WhereOperators,
-    WhereOptions,
+    type ColumnDefinition,
+    type Entries,
+    type SelectOptions,
+    type WhereOperators,
+    type WhereOptions,
 } from './types/types';
 import { type Columns } from './types/types';
 import * as SQLite from 'expo-sqlite';
