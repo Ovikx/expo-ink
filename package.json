@@ -160,6 +160,7 @@
   },
   "dependencies": {
     "expo": "^49.0.2",
+    "expo-ink": "file:expo-ink-0.1.0.tgz",
     "expo-sqlite": "~11.3.1"
   }
 }
