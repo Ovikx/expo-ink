@@ -6,19 +6,19 @@ import {
     type WhereOptions,
 } from './types/types';
 import { type Columns } from './types/types';
-import * as SQLite from 'expo-sqlite';
+import * as SQLite from 'expo-web-sqlite';
 import { sql } from './utils';
 
 export class Table<T extends object> {
-    database: SQLite.SQLiteDatabase;
+    database: SQLite.WebSQLDatabase;
     name: string;
     columns: Columns<T>;
 
     constructor(
-        db: SQLite.SQLiteDatabase,
+        db: SQLite.WebSQLDatabase,
         name: string,
         columns: Columns<T>,
-        autoCreate = false
+        autoCreate: boolean
     ) {
         this.database = db;
         this.name = name;
@@ -50,17 +50,30 @@ export class Table<T extends object> {
         const statement = `CREATE TABLE IF NOT EXISTS ${this.name} (${cols.join(
             ', '
         )});`;
-        this.database.transactionAsync(async (tx) => {
-            tx.executeSqlAsync(statement);
-        });
+        this.database.transaction(
+            (tx) => tx.executeSql(statement),
+            (e) => console.log(`[ERR] ${e} | Executed SQL: ${statement}`),
+            () => console.log(`[OK] Executed SQL: ${statement}`)
+        ); // TODO: replace success callback with a user-provided callback
     }
 
     /**
      * Deletes the table from the database
      */
     async deleteTable() {
-        this.database.transactionAsync(async (tx) => {
-            tx.executeSqlAsync(`DROP TABLE IF EXISTS ${this.name}`, undefined);
+        return new Promise<void>((resolve, reject) => {
+            this.database.transaction((tx) => {
+                tx.executeSql(
+                    `DROP TABLE IF EXISTS ${this.name}`,
+                    undefined,
+                    () => resolve(),
+                    (_tx, err) => {
+                        console.log(err);
+                        reject(err);
+                        return false;
+                    }
+                );
+            });
         });
     }
 
@@ -102,13 +115,22 @@ export class Table<T extends object> {
             statement += ` LIMIT ${options.limit}`;
         }
 
-        let rows: T[] | undefined;
-
-        await this.database.transactionAsync(async (tx) => {
-            rows = (await tx.executeSqlAsync(sql`${statement}`)).rows as T[];
+        return new Promise<T[]>((resolve, reject) => {
+            this.database.transaction((tx) => {
+                tx.executeSql(
+                    sql`${statement}`,
+                    undefined,
+                    (_tx, resultSet) => {
+                        resolve(resultSet.rows._array);
+                    },
+                    (_tx, err) => {
+                        console.log(err);
+                        reject(err);
+                        return false;
+                    }
+                );
+            });
         });
-
-        return rows;
     }
 
     async sum(column: keyof T, where?: WhereOptions<T>) {
@@ -119,16 +141,26 @@ export class Table<T extends object> {
             statement += ` WHERE ${this.parseWhere(where)}`;
         }
 
-        let sum: number | undefined;
-
-        await this.database.transactionAsync(async (tx) => {
-            sum =
-                (await tx.executeSqlAsync(sql`${statement}`)).rows[0][
-                    `SUM(${String(column)})`
-                ] ?? 0;
+        return new Promise<number>((resolve, reject) => {
+            this.database.transaction((tx) => {
+                tx.executeSql(
+                    sql`${statement}`,
+                    undefined,
+                    (_tx, resultSet) => {
+                        resolve(
+                            resultSet.rows._array[0][
+                                `SUM(${String(column)})`
+                            ] ?? 0
+                        );
+                    },
+                    (_tx, err) => {
+                        console.log(err);
+                        reject(err);
+                        return false;
+                    }
+                );
+            });
         });
-
-        return sum;
     }
 
     /**
@@ -146,8 +178,21 @@ export class Table<T extends object> {
         const statement = `INSERT INTO ${this.name} (${columns.join(
             ', '
         )}) VALUES (${Array(values.length).fill('?').join(', ')});`;
-        this.database.transactionAsync(async (tx) => {
-            tx.executeSqlAsync(statement, values);
+        return new Promise<void>((resolve, reject) => {
+            this.database.transaction((tx) => {
+                tx.executeSql(
+                    statement,
+                    values,
+                    () => {
+                        resolve();
+                    },
+                    (_tx, err) => {
+                        console.log(err);
+                        reject(err);
+                        return false;
+                    }
+                );
+            });
         });
     }
 
@@ -180,16 +225,16 @@ export class Table<T extends object> {
         };
 
         const processOperand = (operand: any): string => {
-            if (typeof operand === 'string') {
+            if (typeof operand == 'string') {
                 return `'${operand}'`;
             } else {
                 return operand.toString();
             }
         };
 
-        const parseWhereHelper = (wherePortion: WhereOptions<T>): string => {
+        const parseWhereHelper = (wherePart: WhereOptions<T>): string => {
             const chunks: string[] = [];
-            for (const [key, val] of Object.entries(wherePortion) as Entries<
+            for (const [key, val] of Object.entries(wherePart) as Entries<
                 WhereOptions<T>
             >) {
                 if (keyIsColumn(key)) {
@@ -223,6 +268,7 @@ export class Table<T extends object> {
                         chunks.push(regOpChunks.join(' AND '));
                     }
                 } else if (key == '$or') {
+                    // console.log(parseOr(val as WhereOptions<T>[]))
                     const orChunks: string[] = [];
                     for (const whereOption of val as WhereOptions<T>[]) {
                         orChunks.push(parseWhereHelper(whereOption));
