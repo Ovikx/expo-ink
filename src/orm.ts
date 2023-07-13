@@ -28,13 +28,15 @@ export class ExpoSQLiteORM {
      * Returns a Table using the specified table name and columns mapping
      * @param tableName Name of the table
      * @param columns An object literal mapping column names to their respective data types
+     * @param autoCreate Whether or not to automatically run CREATE TABLE on app start-up
      * @returns An SQL Table object that can perform CRUD operations
      */
     initializeTable<T extends object>(
         tableName: string,
-        columns: Columns<T>
+        columns: Columns<T>,
+        autoCreate: boolean
     ): Table<T> {
-        return new Table(this.database, tableName, columns);
+        return new Table(this.database, tableName, columns, autoCreate);
     }
 
     /**
