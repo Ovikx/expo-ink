@@ -137,13 +137,6 @@
     "node_modules/",
     "lib/"
   ],
-  "prettier": {
-    "quoteProps": "consistent",
-    "singleQuote": true,
-    "tabWidth": 2,
-    "trailingComma": "es5",
-    "useTabs": false
-  },
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
@@ -160,7 +153,6 @@
   },
   "dependencies": {
     "expo": "^49.0.2",
-    "expo-ink": "file:expo-ink-0.1.0.tgz",
     "expo-web-sqlite": "^1.0.3"
   }
 }
