@@ -1,5 +1,6 @@
 # Artifacts
 node_modules/
+dist/
 
 # Github
 .github/

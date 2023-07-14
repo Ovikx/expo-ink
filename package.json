@@ -1,9 +1,10 @@
 {
   "name": "expo-ink",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A lightweight, type-safe, and asynchronous SQLite ORM for expo-sqlite",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "lib/commonjs/index",
+  "module": "lib/module/index",
+  "types": "lib/typescript/index.d.ts",
   "react-native": "src/index",
   "source": "src/index",
   "files": [
