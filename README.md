@@ -1,6 +1,6 @@
 # DISCLAIMER: This is still in development!
 
-For any SQLite features not supported by this package, use the `database` property of `ExpoORM` to access `expo-sqlite` directly.
+For any SQLite features not supported by this package, use the `database` property of `ExpoSQLiteORM` to access `expo-sqlite` directly.
 
 # expo-ink
 
