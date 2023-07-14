@@ -24,7 +24,9 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "esnext",
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "declaration": true,
+    "declarationMap": true,
   },
   "exclude": ["example/"]
 }

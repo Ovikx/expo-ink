@@ -14,13 +14,7 @@ npm install expo-ink
 
 ## Basic usage
 
-```js
-import { multiply } from "expo-ink";
-
-// ...
-
-const result = await multiply(3, 7);
-```
+Coming soon!
 
 ## Contributing
 
