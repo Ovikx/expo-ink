@@ -1,0 +1,22 @@
+# Artifacts
+node_modules/
+
+# Github
+.github/
+
+# Config
+.editorconfig
+.gitattributes
+.gitignore
+.nvmrc
+.prettierignore
+.watchmanconfig
+babel.config.js
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+lefthook.yml
+
+# Misc
+example/
+lib/
+scripts/
