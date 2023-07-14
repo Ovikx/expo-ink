@@ -1,3 +1,19 @@
+/** TODO: Explain its purpose in the hook-based constructor */
+export interface DatabaseConfig {
+  name: string;
+  version: number;
+  migrations?: Migrations;
+  autoMigrate?: boolean;
+  autoCreateTables: boolean;
+  tables: TableConfig<object>[];
+}
+
+/** TODO: Explain its purpose in the hook-based constructor */
+export interface TableConfig<T extends object> {
+  name: string;
+  columns: Columns<T>;
+}
+
 /** Enum to represent the various SQL data types */
 export enum ColumnType {
   TEXT = 'TEXT',
