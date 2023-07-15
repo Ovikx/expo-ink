@@ -20,6 +20,7 @@ export enum ColumnType {
   TEXT = 'TEXT',
   INTEGER = 'INTEGER',
   REAL = 'REAL',
+  BOOLEAN = 'INTEGER',
 }
 
 /** Constraints for a column (note: `DEFAULT` is omitted because it is already found as an optional property on ColumnDefinition) */
