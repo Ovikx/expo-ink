@@ -1,12 +1,12 @@
 import { ColumnConstraint, ColumnType, type Columns } from 'expo-ink';
-import type { User } from '../types/types';
+import type { Todo } from '../types/types';
 
-export const UsersColumns: Columns<User> = {
-  id: {
+export const TodoColumns: Columns<Todo> = {
+  title: {
     dataType: ColumnType.TEXT,
-    constraints: [ColumnConstraint.PRIMARY_KEY, ColumnConstraint.UNIQUE],
+    constraints: [ColumnConstraint.UNIQUE],
   },
-  name: { dataType: ColumnType.TEXT },
-  age: { dataType: ColumnType.INTEGER },
-  verified: { dataType: ColumnType.TEXT, default: false },
+  description: { dataType: ColumnType.TEXT },
+  datePosted: { dataType: ColumnType.INTEGER },
+  completed: { dataType: ColumnType.BOOLEAN, default: false },
 };

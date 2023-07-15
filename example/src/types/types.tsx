@@ -1,6 +1,6 @@
-export interface User {
-  id: string;
-  name: string;
-  age: number;
-  verified: boolean;
+export interface Todo {
+  title: string;
+  description: string;
+  datePosted: number;
+  completed: boolean;
 }
