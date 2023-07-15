@@ -45,17 +45,23 @@ export interface ColumnDefinition<T, K extends keyof T> {
 /** Sort order for ORDER BY clause */
 export type SortOrder = 'ASC' | 'DESC';
 
-/** Options for querying rows from a table */
-export interface SelectOptions<T> {
-  /** The names of the columns to select. Do not pass this property for querying all columns (`"*"`) */
-  columns?: Array<keyof T>;
-  // TODO: add where
+export interface BaseQueryOptions<T> {
   where?: WhereOptions<T>;
   /** Maximum number of returned rows */
   limit?: number;
   /** Sort order */
   orderBy?: { [k in keyof Partial<T>]: SortOrder };
 }
+
+/** Options for querying rows from a table */
+export interface SelectOptions<T> extends BaseQueryOptions<T> {
+  /** The names of the columns to select. Do not pass this property for querying all columns (`"*"`) */
+  columns?: Array<keyof T>;
+}
+
+export type UpdateSetOptions<T> = {
+  [k in keyof Partial<T>]: T[k];
+};
 
 /** Maps column names to WHERE clauses */
 export type WhereOptions<T> =

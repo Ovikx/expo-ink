@@ -1,13 +1,13 @@
 import {
+  type BaseQueryOptions,
   type ColumnDefinition,
-  type Entries,
   type SelectOptions,
-  type WhereOperators,
+  type UpdateSetOptions,
   type WhereOptions,
 } from '../types/types';
 import { type Columns } from '../types/types';
 import * as SQLite from 'expo-web-sqlite';
-import { sql } from '../utils';
+import { _parseOptions, _parseWhere, sql } from '../utils';
 
 export class Table<T extends object> {
   database: SQLite.WebSQLDatabase;
@@ -86,31 +86,7 @@ export class Table<T extends object> {
     // Parse the columns
     const cols = options.columns?.join(', ') ?? '*';
     let statement = `SELECT ${cols} FROM ${this.name}`;
-
-    // Handle WHERE option
-    if (options.where != undefined && JSON.stringify(options.where) != '{}') {
-      statement += ` WHERE ${this.parseWhere(options.where)}`;
-    }
-
-    // Handle ORDER BY option
-    if (options.orderBy != undefined) {
-      statement += ' ORDER BY';
-      const entries = Object.entries(options.orderBy);
-      for (let i = 0; i < entries.length; i++) {
-        const orderQuery = entries[i];
-        statement += ` ${orderQuery[0]} ${orderQuery[1]}`;
-
-        // To not put the comma after the last column
-        if (i != entries.length - 1) {
-          statement += ',';
-        }
-      }
-    }
-
-    // Handle LIMIT option
-    if (options.limit != undefined) {
-      statement += ` LIMIT ${options.limit}`;
-    }
+    statement = _parseOptions(statement, options);
 
     return new Promise<T[]>((resolve, reject) => {
       this.database.transaction((tx) => {
@@ -130,24 +106,28 @@ export class Table<T extends object> {
     });
   }
 
-  async sum(column: keyof T, where?: WhereOptions<T>) {
-    let statement = `SELECT SUM(${String(column)}) FROM ${this.name}`;
-
-    // Handle WHERE
-    if (where != undefined && JSON.stringify(where) != '{}') {
-      statement += ` WHERE ${this.parseWhere(where)}`;
+  async update(set: UpdateSetOptions<T>, options: BaseQueryOptions<T>) {
+    let statement = `UPDATE ${this.name}`;
+    // Parse set options
+    const vals: any[] = [];
+    const colEqs: string[] = [];
+    for (const [col, val] of Object.entries(set)) {
+      vals.push(val);
+      colEqs.push(`${col} = ?`);
     }
 
-    return new Promise<number>((resolve, reject) => {
+    statement += ` SET ${colEqs.join(', ')}`;
+
+    // Parse query options
+    statement = _parseOptions(statement, options);
+
+    return new Promise<void>((resolve, reject) => {
       this.database.transaction((tx) => {
         tx.executeSql(
-          sql`${statement}`,
-          undefined,
-          (_tx, resultSet) => {
-            resolve(resultSet.rows._array[0][`SUM(${String(column)})`] ?? 0);
-          },
+          statement,
+          vals,
+          () => resolve(),
           (_tx, err) => {
-            console.log(err);
             reject(err);
             return false;
           }
@@ -189,91 +169,29 @@ export class Table<T extends object> {
     });
   }
 
-  /**
-   * Parses a query model into a string
-   * @param where Where options
-   * @returns Parsed SQL WHERE clause (excluding the "WHERE")
-   */
-  protected parseWhere(where: WhereOptions<T>): string {
-    // TODO: make private
-    const comparisonOps = new Set([
-      '$eq',
-      '$neq',
-      '$lt',
-      '$lte',
-      '$gt',
-      '$gte',
-    ]);
-    const opToSQL = {
-      $eq: '=',
-      $neq: '!=',
-      $lt: '<',
-      $lte: '<=',
-      $gt: '>',
-      $gte: '>=',
-    };
+  async sum(column: keyof T, where?: WhereOptions<T>) {
+    let statement = `SELECT SUM(${String(column)}) FROM ${this.name}`;
 
-    const keyIsColumn = (key: string): boolean => {
-      return !comparisonOps.has(key) && key != '$not' && key != '$or';
-    };
+    // Handle WHERE
+    if (where != undefined && JSON.stringify(where) != '{}') {
+      statement += ` WHERE ${_parseWhere(where)}`;
+    }
 
-    const processOperand = (operand: any): string => {
-      if (typeof operand == 'string') {
-        return `'${operand}'`;
-      } else {
-        return operand.toString();
-      }
-    };
-
-    const parseWhereHelper = (wherePart: WhereOptions<T>): string => {
-      const chunks: string[] = [];
-      for (const [key, val] of Object.entries(wherePart) as Entries<
-        WhereOptions<T>
-      >) {
-        if (keyIsColumn(key)) {
-          // If the key is a column, then we know the value is either an object or a primitive
-          if (typeof val != 'object') {
-            // If it's not an object operator, then it's an implicit $eq
-            chunks.push(`${key} = ${processOperand(val)}`);
-          } else {
-            // Otherwise, it's a series of operators (including $not)
-            const regOpChunks: string[] = [];
-            for (const [innerKey, innerVal] of Object.entries(
-              val as WhereOperators<T, keyof T>
-            ) as [keyof typeof opToSQL | '$not', T][]) {
-              if (innerKey != '$not') {
-                // Operator is not $not, so treat as comparison operator
-                regOpChunks.push(
-                  `${String(key)} ${opToSQL[innerKey]} ${processOperand(
-                    innerVal
-                  )}`
-                );
-              } else {
-                // Operator is $not, so recur
-                regOpChunks.push(
-                  `NOT ${parseWhereHelper({
-                    [key]: innerVal,
-                  } as WhereOptions<T>)}`
-                );
-              }
-            }
-
-            chunks.push(regOpChunks.join(' AND '));
+    return new Promise<number>((resolve, reject) => {
+      this.database.transaction((tx) => {
+        tx.executeSql(
+          sql`${statement}`,
+          undefined,
+          (_tx, resultSet) => {
+            resolve(resultSet.rows._array[0][`SUM(${String(column)})`] ?? 0);
+          },
+          (_tx, err) => {
+            console.log(err);
+            reject(err);
+            return false;
           }
-        } else if (key == '$or') {
-          // console.log(parseOr(val as WhereOptions<T>[]))
-          const orChunks: string[] = [];
-          for (const whereOption of val as WhereOptions<T>[]) {
-            orChunks.push(parseWhereHelper(whereOption));
-          }
-
-          chunks.push(`(${orChunks.join(' OR ')})`);
-        }
-      }
-
-      return `(${chunks.join(' AND ')})`;
-    };
-
-    return parseWhereHelper(where);
+        );
+      });
+    });
   }
 }

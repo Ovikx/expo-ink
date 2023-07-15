@@ -1,5 +1,5 @@
-import { Table } from '../core/table';
-import { ColumnType, type Columns, type WhereOptions } from '../types/types';
+import type { WhereOptions } from '../types/types';
+import { _parseWhere } from '../utils';
 
 interface Student {
   name: string;
@@ -8,26 +8,6 @@ interface Student {
   sat: number;
   money: number;
 }
-
-const studentCols: Columns<Student> = {
-  name: { dataType: ColumnType.TEXT },
-  age: { dataType: ColumnType.INTEGER },
-  gpa: { dataType: ColumnType.REAL },
-  sat: { dataType: ColumnType.INTEGER },
-  money: { dataType: ColumnType.INTEGER },
-};
-
-class TestTable<T extends object> extends Table<T> {
-  constructor(columns: Columns<T>) {
-    super(undefined as any, 'test', columns, false);
-  }
-
-  testParseWhere(where: WhereOptions<T>) {
-    return this.parseWhere(where);
-  }
-}
-
-const table = new TestTable(studentCols);
 
 function escapeRegExp(str: string) {
   return str.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
@@ -50,7 +30,7 @@ function runTest<T>(actual: T, expected: string) {
  * @param expected Expected parsed SQL
  */
 function runParseTest(where: WhereOptions<Student>, expected: string) {
-  runTest(table.testParseWhere(where), expected);
+  runTest(_parseWhere(where), expected);
 }
 
 describe('where parser', () => {
