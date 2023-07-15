@@ -11,5 +11,3 @@ export const usersTable = createTable({
   columns: UsersColumns,
   db: db,
 });
-
-// what if I just don't use the "react" way of doing things :)
