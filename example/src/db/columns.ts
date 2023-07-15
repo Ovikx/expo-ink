@@ -1,5 +1,5 @@
 import { ColumnConstraint, ColumnType, type Columns } from 'expo-ink';
-import type { User } from 'src/types/types';
+import type { User } from '../types/types';
 
 export const UsersColumns: Columns<User> = {
   id: {
