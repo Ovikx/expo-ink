@@ -1,6 +1,6 @@
 {
   "name": "expo-ink",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "A lightweight, type-safe, and asynchronous SQLite ORM for expo-sqlite",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -70,7 +70,8 @@
     "react-native": "0.71.8",
     "react-native-builder-bob": "^0.20.0",
     "release-it": "^15.0.0",
-    "typescript": "^5.0.2"
+    "typescript": "^5.0.2",
+    "jest-expo": "^49.0.0"
   },
   "resolutions": {
     "@types/react": "17.0.21"
@@ -156,7 +157,6 @@
   },
   "dependencies": {
     "expo": "^49.0.2",
-    "expo-web-sqlite": "^1.0.3",
-    "jest-expo": "^49.0.0"
+    "expo-web-sqlite": "^1.0.3"
   }
 }
