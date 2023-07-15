@@ -1,5 +1,5 @@
 import * as SQLite from 'expo-web-sqlite';
-import { type Columns, type Migrations } from './types/types';
+import { type Columns, type Migrations } from '../types/types';
 import { Table } from './table';
 
 export class ExpoSQLiteORM {

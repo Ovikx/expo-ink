@@ -4,10 +4,10 @@ import {
   type SelectOptions,
   type WhereOperators,
   type WhereOptions,
-} from './types/types';
-import { type Columns } from './types/types';
+} from '../types/types';
+import { type Columns } from '../types/types';
 import * as SQLite from 'expo-web-sqlite';
-import { sql } from './utils';
+import { sql } from '../utils';
 
 export class Table<T extends object> {
   database: SQLite.WebSQLDatabase;

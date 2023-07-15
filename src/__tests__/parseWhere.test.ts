@@ -1,4 +1,4 @@
-import { Table } from '../table';
+import { Table } from '../core/table';
 import { ColumnType, type Columns, type WhereOptions } from '../types/types';
 
 interface Student {

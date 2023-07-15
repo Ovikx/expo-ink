@@ -1,16 +1,17 @@
-/** TODO: Explain its purpose in the hook-based constructor */
+import type { ExpoSQLiteORM } from '../core/orm';
+
+/** Configuration options for creating a database */
 export interface DatabaseConfig {
-  name: string;
+  dbName: string;
   version: number;
   migrations?: Migrations;
   autoMigrate?: boolean;
-  autoCreateTables: boolean;
-  tables: TableConfig<object>[];
 }
 
-/** TODO: Explain its purpose in the hook-based constructor */
+/** Configuration options for creating a table */
 export interface TableConfig<T extends object> {
-  name: string;
+  tableName: string;
+  db: ExpoSQLiteORM;
   columns: Columns<T>;
 }
 

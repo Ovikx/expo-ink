@@ -1,4 +1,5 @@
-export { ExpoSQLiteORM } from './orm';
-export { Table } from './table';
+export { ExpoSQLiteORM } from './core/orm';
+export { Table } from './core/table';
 export * from './types/types';
 export * from './utils';
+export * from './core/mainUtils';
