@@ -1,9 +1,4 @@
-# DISCLAIMER: This is still in development!
-
-For any SQLite features not supported by this package, use the `database` property of `ExpoSQLiteORM` to access `expo-sqlite` directly.
-
 # expo-ink
-
 A lightweight, type-safe, and asynchronous ORM for [`expo-sqlite`](https://www.npmjs.com/package/expo-sqlite). Leverages TypeScript to ensure rigid type safety throughout table definitions and queries. Supports automatic migrations.
 
 ## Installation
@@ -101,6 +96,9 @@ export default function App() {
 
 ## Further examples
 See the [example app folder](https://github.com/Ovikx/expo-ink/tree/main/example) for more advanced usage.
+
+## Unsupported features
+For any SQLite features not supported by this library, use the `database` property of `ExpoSQLiteORM` to access the [modified `expo-sqlite` API](https://github.com/Ovikx/expo-web-sqlite) directly (it's just a stable version of `expo-sqlite`).
 
 ## Contributing
 
