@@ -42,7 +42,7 @@ export function _parseWhere<T extends object>(where: WhereOptions<T>): string {
 
   const processOperand = (operand: any): string => {
     if (typeof operand == 'string') {
-      return `'${operand}'`;
+      return `quote('${operand}')`;
     } else {
       return operand.toString();
     }

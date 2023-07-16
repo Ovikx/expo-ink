@@ -128,7 +128,7 @@ describe('where parser', () => {
           },
         ],
       },
-      "age >= 17 AND age < 23 AND ((NOT (NOT (money >= 1000))) OR (name != 'John Doe'))"
+      "age >= 17 AND age < 23 AND ((NOT (NOT (money >= 1000))) OR (name != quote('John Doe')))"
     );
   });
 
@@ -137,7 +137,7 @@ describe('where parser', () => {
       {
         name: 'Jeff Bezos',
       },
-      "name = 'Jeff Bezos'"
+      "name = quote('Jeff Bezos')"
     );
   });
 });
