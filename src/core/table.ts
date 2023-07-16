@@ -68,7 +68,6 @@ export class Table<T extends object> {
           undefined,
           () => resolve(),
           (_tx, err) => {
-            console.log(err);
             reject(err);
             return false;
           }
@@ -98,7 +97,6 @@ export class Table<T extends object> {
             resolve(resultSet.rows._array);
           },
           (_tx, err) => {
-            console.log(err);
             reject(err);
             return false;
           }
@@ -166,7 +164,6 @@ export class Table<T extends object> {
           values,
           () => resolve(),
           (_tx, err) => {
-            console.log(err);
             reject(err);
             return false;
           }
@@ -227,7 +224,6 @@ export class Table<T extends object> {
             resolve(resultSet.rows._array[0][`SUM(${String(column)})`] ?? 0);
           },
           (_tx, err) => {
-            console.log(err);
             reject(err);
             return false;
           }
