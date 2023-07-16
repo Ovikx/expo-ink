@@ -100,6 +100,12 @@ export function _parseWhere<T extends object>(where: WhereOptions<T>): string {
   return parseWhereHelper(where);
 }
 
+/**
+ * Parses base query options and appends the string onto the provided SQL statement
+ * @param statement Statement to append to
+ * @param options Base query options (WHERE, LIMIT, ORDER BY, etc.)
+ * @returns Augmented `statement`
+ */
 export function _parseOptions<T extends object>(
   statement: string,
   options: BaseQueryOptions<T>

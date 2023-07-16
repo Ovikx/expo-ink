@@ -27,7 +27,7 @@ export class Table<T extends object> {
   }
 
   /**
-   * Adds this table to the database if it doesn't exist already.
+   * Adds this table to the database if it doesn't exist already
    */
   async createTable<K extends keyof T>() {
     const cols: string[] = [];
@@ -78,7 +78,7 @@ export class Table<T extends object> {
   }
 
   /**
-   * Updates the provided state by performing a `SELECT FROM` operation on this table using the provided query options
+   * Returns an array of rows that satisfy the query parameters
    * @param options Query options
    * @returns Array of results
    */
@@ -106,6 +106,12 @@ export class Table<T extends object> {
     });
   }
 
+  /**
+   * Updates the specified rows
+   * @param set Set options that specify which columns should be changed to what
+   * @param options Query options for selecting which rows should be updated
+   * @returns Void
+   */
   async update(set: UpdateSetOptions<T>, options: BaseQueryOptions<T>) {
     let statement = `UPDATE ${this.name}`;
     // Parse set options
@@ -169,6 +175,12 @@ export class Table<T extends object> {
     });
   }
 
+  /**
+   * Computes the sum of the specified column
+   * @param column Column to sum
+   * @param where Which rows to include in the sum
+   * @returns Sum of all the values in `column`
+   */
   async sum(column: keyof T, where?: WhereOptions<T>) {
     let statement = `SELECT SUM(${String(column)}) FROM ${this.name}`;
 
