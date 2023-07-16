@@ -1,6 +1,6 @@
 {
   "name": "expo-ink",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A lightweight, type-safe, and asynchronous SQLite ORM for expo-sqlite",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -37,8 +37,9 @@
   },
   "keywords": [
     "react-native",
-    "ios",
-    "android"
+    "expo",
+    "sqlite",
+    "orm"
   ],
   "repository": "https://github.com/Ovikx/expo-ink",
   "author": "Ovikx (https://github.com/Ovikx)",
