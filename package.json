@@ -72,15 +72,13 @@
     "react-native-builder-bob": "^0.20.0",
     "release-it": "^15.0.0",
     "typescript": "^5.0.2",
-    "jest-expo": "^49.0.0"
+    "jest-expo": "^49.0.0",
+    "expo": "^49.0.2"
   },
   "resolutions": {
     "@types/react": "17.0.21"
   },
-  "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
-  },
+  "peerDependencies": {},
   "engines": {
     "node": ">= 16.0.0"
   },
@@ -157,7 +155,6 @@
     ]
   },
   "dependencies": {
-    "expo": "^49.0.2",
     "expo-web-sqlite": "^1.0.3"
   }
 }
