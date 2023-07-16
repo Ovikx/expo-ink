@@ -24,7 +24,9 @@ export function sql(strs: TemplateStringsArray, ...values: any[]) {
  * @param where Where options
  * @returns Parsed SQL WHERE clause (excluding the "WHERE")
  */
-export function _parseWhere<T extends object>(where: WhereOptions<T>): string {
+export function _parseWhere<T extends object>(
+  where: WhereOptions<T>
+): [string, any[]] {
   // TODO: make private
   const comparisonOps = new Set(['$eq', '$neq', '$lt', '$lte', '$gt', '$gte']);
   const opToSQL = {
@@ -40,13 +42,7 @@ export function _parseWhere<T extends object>(where: WhereOptions<T>): string {
     return !comparisonOps.has(key) && key != '$not' && key != '$or';
   };
 
-  const processOperand = (operand: any): string => {
-    if (typeof operand == 'string') {
-      return `quote('${operand}')`;
-    } else {
-      return operand.toString();
-    }
-  };
+  const values: any[] = [];
 
   const parseWhereHelper = (wherePart: WhereOptions<T>): string => {
     const chunks: string[] = [];
@@ -57,7 +53,8 @@ export function _parseWhere<T extends object>(where: WhereOptions<T>): string {
         // If the key is a column, then we know the value is either an object or a primitive
         if (typeof val != 'object') {
           // If it's not an object operator, then it's an implicit $eq
-          chunks.push(`${key} = ${processOperand(val)}`);
+          chunks.push(`${key} = ?`);
+          values.push(val);
         } else {
           // Otherwise, it's a series of operators (including $not)
           const regOpChunks: string[] = [];
@@ -66,11 +63,8 @@ export function _parseWhere<T extends object>(where: WhereOptions<T>): string {
           ) as [keyof typeof opToSQL | '$not', T][]) {
             if (innerKey != '$not') {
               // Operator is not $not, so treat as comparison operator
-              regOpChunks.push(
-                `${String(key)} ${opToSQL[innerKey]} ${processOperand(
-                  innerVal
-                )}`
-              );
+              regOpChunks.push(`${String(key)} ${opToSQL[innerKey]} ?`);
+              values.push(innerVal);
             } else {
               // Operator is $not, so recur
               regOpChunks.push(
@@ -97,7 +91,8 @@ export function _parseWhere<T extends object>(where: WhereOptions<T>): string {
     return `(${chunks.join(' AND ')})`;
   };
 
-  return parseWhereHelper(where);
+  const parsed = parseWhereHelper(where);
+  return [parsed, values];
 }
 
 /**
@@ -109,10 +104,13 @@ export function _parseWhere<T extends object>(where: WhereOptions<T>): string {
 export function _parseOptions<T extends object>(
   statement: string,
   options: BaseQueryOptions<T>
-) {
+): [string, any[]] {
+  let params: any[] = [];
   // Handle WHERE option
   if (options.where != undefined && JSON.stringify(options.where) != '{}') {
-    statement += ` WHERE ${_parseWhere(options.where)}`;
+    const [parsedWhere, whereParams] = _parseWhere(options.where);
+    statement += ` WHERE ${parsedWhere}`;
+    params = whereParams;
   }
 
   // Handle ORDER BY option
@@ -135,5 +133,5 @@ export function _parseOptions<T extends object>(
     statement += ` LIMIT ${options.limit}`;
   }
 
-  return statement;
+  return [statement, params];
 }

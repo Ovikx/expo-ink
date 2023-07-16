@@ -86,13 +86,14 @@ export class Table<T extends object> {
     // Parse the columns
     const cols = options.columns?.join(', ') ?? '*';
     let statement = `SELECT ${cols} FROM ${this.name}`;
-    statement = _parseOptions(statement, options);
+    const [parsedOptions, params] = _parseOptions(statement, options);
+    statement = parsedOptions;
 
     return new Promise<T[]>((resolve, reject) => {
       this.database.transaction((tx) => {
         tx.executeSql(
           sql`${statement}`,
-          undefined,
+          params,
           (_tx, resultSet) => {
             resolve(resultSet.rows._array);
           },
@@ -109,29 +110,30 @@ export class Table<T extends object> {
   /**
    * Updates the specified rows
    * @param set Set options that specify which columns should be changed to what
-   * @param options Query options for selecting which rows should be updated
+   * @param query Query options for selecting which rows should be updated
    * @returns Void
    */
-  async update(set: UpdateSetOptions<T>, options: BaseQueryOptions<T>) {
+  async update(set: UpdateSetOptions<T>, query: BaseQueryOptions<T>) {
     let statement = `UPDATE ${this.name}`;
     // Parse set options
-    const vals: any[] = [];
+    const colEqVals: any[] = [];
     const colEqs: string[] = [];
     for (const [col, val] of Object.entries(set)) {
-      vals.push(val);
+      colEqVals.push(val);
       colEqs.push(`${col} = ?`);
     }
 
     statement += ` SET ${colEqs.join(', ')}`;
 
     // Parse query options
-    statement = _parseOptions(statement, options);
+    const [parsedOptions, params] = _parseOptions(statement, query);
+    statement = parsedOptions;
 
     return new Promise<void>((resolve, reject) => {
       this.database.transaction((tx) => {
         tx.executeSql(
           statement,
-          vals,
+          [...colEqVals, ...params],
           () => resolve(),
           (_tx, err) => {
             reject(err);
@@ -162,11 +164,35 @@ export class Table<T extends object> {
         tx.executeSql(
           statement,
           values,
-          () => {
-            resolve();
-          },
+          () => resolve(),
           (_tx, err) => {
             console.log(err);
+            reject(err);
+            return false;
+          }
+        );
+      });
+    });
+  }
+
+  /**
+   * Deletes the specified rows
+   * @param query Which rows to delete
+   * @returns Void
+   */
+  async delete(query: BaseQueryOptions<T>) {
+    const [statement, params] = _parseOptions(
+      `DELETE FROM ${this.name}`,
+      query
+    );
+
+    return new Promise<void>((resolve, reject) => {
+      this.database.transaction((tx) => {
+        tx.executeSql(
+          statement,
+          params,
+          () => resolve(),
+          (_tx, err) => {
             reject(err);
             return false;
           }
@@ -185,15 +211,18 @@ export class Table<T extends object> {
     let statement = `SELECT SUM(${String(column)}) FROM ${this.name}`;
 
     // Handle WHERE
+    let params: any[] = [];
     if (where != undefined && JSON.stringify(where) != '{}') {
-      statement += ` WHERE ${_parseWhere(where)}`;
+      const [parsedWhere, whereParams] = _parseWhere(where);
+      statement += ` WHERE ${parsedWhere}`;
+      params = whereParams;
     }
 
     return new Promise<number>((resolve, reject) => {
       this.database.transaction((tx) => {
         tx.executeSql(
           sql`${statement}`,
-          undefined,
+          params,
           (_tx, resultSet) => {
             resolve(resultSet.rows._array[0][`SUM(${String(column)})`] ?? 0);
           },

@@ -18,10 +18,14 @@ function escapeRegExp(str: string) {
  * @param actual Actual value
  * @param expected Expected value
  */
-function runTest<T>(actual: T, expected: string) {
+function runTest<T extends ReturnType<typeof _parseWhere>>(
+  actual: T,
+  expected: T
+) {
   // expect(actual).toBe(expected);
-  const escaped = escapeRegExp(expected);
-  expect(actual).toMatch(new RegExp(`^\\(*${escaped}\\)*$`));
+  const escaped = escapeRegExp(expected[0]);
+  expect(actual[0]).toMatch(new RegExp(`^\\(*${escaped}\\)*$`));
+  expect(actual[1]).toEqual(expected[1]);
 }
 
 /**
@@ -29,7 +33,10 @@ function runTest<T>(actual: T, expected: string) {
  * @param where Where options
  * @param expected Expected parsed SQL
  */
-function runParseTest(where: WhereOptions<Student>, expected: string) {
+function runParseTest<T extends ReturnType<typeof _parseWhere>>(
+  where: WhereOptions<Student>,
+  expected: T
+) {
   runTest(_parseWhere(where), expected);
 }
 
@@ -41,7 +48,7 @@ describe('where parser', () => {
         age: 18,
         gpa: 4,
       },
-      'age = 18 AND gpa = 4'
+      ['age = ? AND gpa = ?', [18, 4]]
     );
   });
 
@@ -50,7 +57,7 @@ describe('where parser', () => {
       {
         $or: [{ age: 18 }, { gpa: 4 }, { sat: 1600 }],
       },
-      '(age = 18) OR (gpa = 4) OR (sat = 1600)'
+      ['(age = ?) OR (gpa = ?) OR (sat = ?)', [18, 4, 1600]]
     );
   });
 
@@ -60,7 +67,7 @@ describe('where parser', () => {
       {
         age: { $gte: 17 },
       },
-      'age >= 17'
+      ['age >= ?', [17]]
     );
   });
 
@@ -72,7 +79,7 @@ describe('where parser', () => {
           $lt: 23,
         },
       },
-      'age >= 17 AND age < 23'
+      ['age >= ? AND age < ?', [17, 23]]
     );
   });
 
@@ -91,7 +98,10 @@ describe('where parser', () => {
           $lt: 1600,
         },
       },
-      'age >= 17 AND age < 23 AND money >= 1000 AND sat >= 1500 AND sat < 1600'
+      [
+        'age >= ? AND age < ? AND money >= ? AND sat >= ? AND sat < ?',
+        [17, 23, 1000, 1500, 1600],
+      ]
     );
   });
 
@@ -100,7 +110,7 @@ describe('where parser', () => {
       {
         age: { $not: { $lt: 17 } },
       },
-      'NOT (age < 17)'
+      ['NOT (age < ?)', [17]]
     );
   });
 
@@ -109,7 +119,7 @@ describe('where parser', () => {
       {
         age: { $not: { $not: { $gte: 17 } } },
       },
-      'NOT (NOT (age >= 17))'
+      ['NOT (NOT (age >= ?))', [17]]
     );
   });
 
@@ -128,7 +138,10 @@ describe('where parser', () => {
           },
         ],
       },
-      "age >= 17 AND age < 23 AND ((NOT (NOT (money >= 1000))) OR (name != quote('John Doe')))"
+      [
+        'age >= ? AND age < ? AND ((NOT (NOT (money >= ?))) OR (name != ?))',
+        [17, 23, 1000, 'John Doe'],
+      ]
     );
   });
 
@@ -137,7 +150,7 @@ describe('where parser', () => {
       {
         name: 'Jeff Bezos',
       },
-      "name = quote('Jeff Bezos')"
+      ['name = ?', ['Jeff Bezos']]
     );
   });
 });
